@@ -81,7 +81,12 @@ namespace PB_script
                 }
             }
 
-            StreamWriter sw = new StreamWriter("output.txt", true, System.Text.Encoding.Default);
+            string output_file_name;
+
+            Console.Write("Enter output file name: ");
+            output_file_name = Console.ReadLine();
+
+            StreamWriter sw = new StreamWriter(output_file_name + ".txt", true, System.Text.Encoding.Default);
 
             Console.WriteLine("Working");
 
