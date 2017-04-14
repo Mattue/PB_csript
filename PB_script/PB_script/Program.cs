@@ -23,30 +23,27 @@ namespace PB_script
         static void Main()
         {
             Console.WriteLine("Hello!");
-            string input_file_name;
-            Console.Write("Enter file name: ");
-            input_file_name = Console.ReadLine();
-
+            string input_file_count;
+            Console.Write("Enter file count: ");
+            input_file_count = Console.ReadLine();
+            
+            //readed line
             string line = "";
+            //line with data only
             string data_line = "";
 
+            //parametrs
             string data_param = "";
             string acc_param = "";
 
+            //result line
             string exit_line = null;
 
             StreamReader file;
 
-            try
-            {
-                file = new StreamReader(input_file_name);
-            }
-            catch (FileNotFoundException)
-            {
-                Console.WriteLine("File Not Found.");
-                Console.ReadLine();
-                return;
-            }
+            //open input file
+
+            //reading parametrs
 
             bool incert = true;
 
@@ -84,76 +81,107 @@ namespace PB_script
                 }
             }
 
-            StreamWriter sw = new StreamWriter("output.txt");
+            StreamWriter sw = new StreamWriter("output.txt", true, System.Text.Encoding.Default);
 
-            //
-            while ((line = file.ReadLine()) != null)
+            Console.WriteLine("Working");
+
+            int i = 1;
+
+            while (i <= Convert.ToInt32(input_file_count))
             {
-                var match = Regex.Match(line, @"(DATA)+|(DT_ACCOUNT)+|(KT_ACCOUNT)+|(SUM)+");
-                if (!match.Success)
+                Console.WriteLine("Reading file " + i);
+
+                try
                 {
-                    continue;
+                    file = new StreamReader(i + ".ttt");
+                }
+                catch (FileNotFoundException)
+                {
+                    Console.WriteLine("File Not Found.");
+                    Console.ReadLine();
+                    return;
                 }
 
-                data_line = get_data_from_line(line);
-                //Console.WriteLine(data_line);
-
-                if (line.IndexOf("<Rec") >= 0)
+                //working cicle
+                while ((line = file.ReadLine()) != null)
                 {
-                    Console.WriteLine("REC");
-                    continue;
-                }
 
-                if (line.IndexOf("<DATA>") >= 0)
-                {
+                    //geting needed line
+                    var match = Regex.Match(line, @"(DATA)+|(DT_ACCOUNT)+|(KT_ACCOUNT)+|(SUM)+");
+                    if (!match.Success)
+                    {
+                        continue;
+                    }
+
+                    //get data from line
+                    data_line = get_data_from_line(line);
+
+                    //check for data equals
+                    if (line.IndexOf("<DATA>") >= 0)
+                    {
+                        if (exit_line != null)
+                        {
+                            //Console.WriteLine(exit_line.Substring(0, exit_line.Length - 1));
+                            sw.WriteLine(exit_line.Substring(0, exit_line.Length - 1));
+                        }
+
+                        exit_line = null;
+                        if (data_line.IndexOf(data_param) >= 0)
+                        {
+                            exit_line = exit_line + data_line + ",";
+                            continue;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+
+                    //check for params equals
                     if (exit_line != null)
                     {
-                        Console.WriteLine(exit_line.Substring(0, exit_line.Length - 1));
-                        sw.WriteLine(exit_line.Substring(exit_line.Length - 1, 1));
-                    }
+                        if (line.IndexOf("DT_ACCOUNT") >= 0)
+                        {
+                            if (data_line.IndexOf(acc_param) >= 0)
+                            {
+                                exit_line = exit_line + data_line + ",";
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
 
-                    exit_line = null;
-                    if (data_line.IndexOf(data_param) >= 0)
-                    {
+                        if (line.IndexOf("KT_ACCOUNT") >= 0)
+                        {
+                            if (data_line.IndexOf(acc_param) >= 0)
+                            {
+                                exit_line = exit_line + data_line + ",";
+                            }
+                            else
+                            {
+                                exit_line = null;
+                                continue;
+                            }
+                        }
+
                         exit_line = exit_line + data_line + ",";
-                        continue;
                     }
-                    else
-                    {
-                        continue;
-                    }
+
                 }
 
+                //print last line
                 if (exit_line != null)
-                {
-                    exit_line = exit_line + data_line + ",";
-                }
+                    sw.WriteLine(exit_line.Substring(0, exit_line.Length - 1));
 
-                /*if (exit_line != null)
-				{
-					if ((line.IndexOf("DT_ACCOUNT") >= 0)  || (line.IndexOf("KT_ACCOUNT") >= 0))
-					{
-						if (data_line.IndexOf(acc_param) >= 0)
-						{
-							exit_line = exit_line + data_line + ",";
-						}
-					}
-				}*/
+                file.Close();
 
-                //sw.Write(bata_line);
-                //sw.Write(",");
-
-                //if (line.IndexOf("SUM") >= 0)
-                //sw.WriteLine();
+                i++;
             }
 
-            if (exit_line != null)
-                sw.WriteLine(exit_line.Substring(exit_line.Length - 1, 1));
-
-            Console.WriteLine(exit_line);
+            Console.WriteLine("Finished");
 
             sw.Close();
-            file.Close();
 
             Console.ReadLine();
         }
