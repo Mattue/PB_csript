@@ -145,25 +145,10 @@ namespace PB_script
                     //check for params equals
                     if (exit_line != null)
                     {
-                        if (line.IndexOf("DT_ACCOUNT") >= 0)
-                        {
-                            if (data_line.IndexOf(acc_param) >= 0)
-                            {
-                                exit_line = exit_line + data_line + ",";
-                            }
-                            else
-                            {
-                                continue;
-                            }
-                        }
-
                         if (line.IndexOf("KT_ACCOUNT") >= 0)
                         {
-                            if (data_line.IndexOf(acc_param) >= 0)
-                            {
-                                exit_line = exit_line + data_line + ",";
-                            }
-                            else
+                            exit_line = exit_line + data_line + ",";
+                            if (!(exit_line.IndexOf(acc_param) >= 0))
                             {
                                 exit_line = null;
                                 continue;
@@ -189,6 +174,12 @@ namespace PB_script
             sw.Close();
 
             Console.ReadLine();
+
+            Console.WriteLine("Repeat?");
+            if (Console.ReadLine() == "y")
+            {
+                Main();
+            }
         }
     }
 }
